@@ -92,6 +92,7 @@ export default defineComponent({
                     icon: info[1],
                     title: element.content,
                     timestamp: formatDate(parseInt(element.timestamp)),
+                    uuid: element.uuid,
                   });
                 }
                 break;
@@ -100,6 +101,7 @@ export default defineComponent({
                   ...element,
                   result: element.text,
                   timestamp: formatDate(parseInt(element.timestamp)),
+                  uuid: element.uuid,
                 });
                 break;
               default:

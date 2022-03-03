@@ -1,45 +1,38 @@
 import Axios from "axios";
 import { MD5 } from ".";
 
-const BAIDU_APPID = "20220129001070948";
-const BAIDU_SALT = "1435660288";
-const BAIDU_KEY = "Epd3GCtivL254qlgX0b9";
-const BAIDU_FANYI = `https://fanyi-api.baidu.com/api/trans/vip/language`;
+const BASE_URL = `http://123.57.239.39/api/user`;
 
-const baidu_instance = Axios.create({
-    baseURL: BAIDU_FANYI,
-    // headers: {
-    //     "Content-Type": "application/x-www-form-urlencoded"
-    // }
+const httpInstance = Axios.create({
+    baseURL: BASE_URL,
+    headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
 })
 
-interface TrabslateOptions {
-    q: string;
-    to: string;
-    from: string;
-    success: (res: any) => void;
-    error: (err: Error) => void;
-}
 
-
-function createSign(search: string) {
-    return MD5(BAIDU_APPID + search + BAIDU_SALT + BAIDU_KEY);
-}
-
-export function fetchTrabslateResult(options: TrabslateOptions) {
-    baidu_instance({
-        params: {
-            q: options.q,
-            to: options.to,
-            salt: BAIDU_SALT,
-            sign: createSign(options.q),
-            from: options.from,
-            appid: BAIDU_APPID,
+const formatData = (data: any): string => {
+    const postData = [];
+    if (data) {
+        for (const key in data) {
+            postData.push(`${key}=${data[key]}`)
         }
+    }
+    return postData.join("&");
+}
+
+
+export function removeBookmarks(
+    oprions: {
+        data: { uid: string },
+        success: (res: any) => void
+    }) {
+    httpInstance({
+        url: "/bookmarks/del",
+        method: "post",
+        data: formatData(oprions.data),
     }).then((res) => {
-        options.success(res);
-    }).catch((err) => {
-        options.error(err)
+        oprions.success(res.data);
     })
 }
 

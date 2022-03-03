@@ -1,13 +1,12 @@
 <template>
   <div class="container">
     <ul class="setting-wrap">
-      <li>
-        <span>同步</span>
-        <el-icon><tools-refresh-right /></el-icon>
-      </li>
-      <li>
-        <span>邮箱</span>
-        <span>{{ email }} </span>
+      <li v-for="(item, index) in menu" :key="index">
+        <span>{{ item.label }}</span>
+        <template v-if="item.type === 1">
+          <el-switch v-model="item.value" @change="handleMenu(index)" />
+        </template>
+        <span v-else>{{ item.value }}</span>
       </li>
     </ul>
 
@@ -21,10 +20,17 @@
     </div>
 
     <div class="bottom">
-      <el-button v-if="!loginState" style="width: 100%" @click="openLoginPage(true)"
+      <el-button
+        v-if="!loginState"
+        style="width: 100%"
+        @click="openLoginPage(true)"
         >登录</el-button
       >
-      <el-button type="danger" v-else style="width: 100%" @click="openLoginPage(true)"
+      <el-button
+        type="danger"
+        v-else
+        style="width: 100%"
+        @click="openLoginPage(true)"
         >切换</el-button
       >
     </div>
@@ -44,13 +50,41 @@ export default defineComponent({
     const loginPageState = ref<boolean>(false);
     const loginState = ref<boolean>(true);
 
+    const menu = ref([
+      {
+        label: "邮箱",
+        value: "",
+        type: 0,
+      },
+      {
+        label: "同步书签",
+        value: false,
+        type: 1,
+      },
+    ]);
+
     onMounted(() => {
       /* eslint-disable no-undef */
       chrome.storage.local.get({ userinfo: {} }, (items) => {
-        email.value = items.userinfo.email || "";
+        menu.value[0].value = items.userinfo.email || "";
         loginState.value = true;
       });
+
+      loadLocalBookmarks();
     });
+
+    const loadLocalBookmarks = () => {
+      chrome.bookmarks.getTree((item) => {
+        console.log(item);
+      });
+    };
+
+    const handleMenu = (index: number) => {
+      switch (index) {
+        case 1:
+          break;
+      }
+    };
 
     const openLoginPage = (state: boolean) => {
       loginPageState.value = state;
@@ -58,8 +92,7 @@ export default defineComponent({
 
     const handleLogin = (userinfo: any) => {
       loginPageState.value = false;
-      email.value = userinfo.email;
-      console.log(userinfo);
+      menu.value[0].value = userinfo.email;
       loginState.value = true;
       /* eslint-disable no-undef */
       chrome.storage.local.set({ userinfo }, () => {
@@ -68,9 +101,11 @@ export default defineComponent({
     };
 
     return {
+      menu,
       email,
       loginState,
       loginPageState,
+      handleMenu,
       handleLogin,
       openLoginPage,
     };

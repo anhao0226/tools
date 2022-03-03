@@ -3,7 +3,7 @@
     <div class="container">
       <ul class="book-wrap">
         <li
-          v-for="(activity, index) in list"
+          v-for="(activity, index) in bookmarks"
           :key="index"
           @click="toNewPage(index)"
         >
@@ -27,19 +27,8 @@
             </div>
             <!--  -->
             <div class="item op">
-              <span @click="removeBook(index)">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 1024 1024"
-                  xmlns="http://www.w3.org/2000/svg"
-                  data-v-042ca774=""
-                >
-                  <path
-                    fill="#909399"
-                    d="M764.288 214.592L512 466.88 259.712 214.592a31.936 31.936 0 00-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1045.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0045.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 10-45.12-45.184z"
-                  ></path>
-                </svg>
+              <span @click.stop="removeBook(index)">
+                <el-icon><tools-close /></el-icon>
               </span>
             </div>
           </div>
@@ -50,21 +39,48 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, toRef } from "vue";
+import { removeBookmarks } from "@/utils/http";
 
 export default defineComponent({
   props: ["list"],
   setup(props, _) {
+    const bookmarks = toRef(props, "list");
+
     const toNewPage = (index: number) => {
       /* eslint-disable no-undef */
-      chrome.tabs.create({ url: props.list[index].url });
+      chrome.tabs.create({ url: bookmarks.value[index].url });
     };
 
     const removeBook = (index: number) => {
-      alert(JSON.stringify(props.list[index]));
+      console.log(bookmarks.value[index]);
+      removeBookmarks({
+        data: {
+          uid: bookmarks.value[index].uuid,
+        },
+        success(res) {
+          if (res.success) {
+            /* eslint-disable no-undef */
+            chrome.notifications.create(
+              "",
+              {
+                iconUrl: "./../icon.png",
+                message: "删除书签成功",
+                type: "basic",
+                title: "提示",
+              },
+              (res) => {
+                console.log(res);
+              }
+            );
+            bookmarks.value.splice(index, 1);
+          }
+        },
+      });
     };
 
     return {
+      bookmarks,
       toNewPage,
       removeBook,
     };

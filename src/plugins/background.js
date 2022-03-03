@@ -27,10 +27,14 @@ chrome.contextMenus.create({
     "onclick": createBookmarks,
 });
 //
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    // console.log("changeInfo===>", changeInfo);
-    // console.log("tab====>", tab);
+chrome.bookmarks.onCreated.addListener((id, bookmark) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        const [tab] = tabs;
+        createBookmarks(0, tab);
+    })
 })
+
+
 // 创建历史记录
 async function createHistory() {
 
@@ -56,7 +60,7 @@ function createBookmarks(_, tab) {
                 type: 1,
             }
         }).then((res) => {
-            alert("add success!");
+            // alert("add success!");
         })
     });
 }

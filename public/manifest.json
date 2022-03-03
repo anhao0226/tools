@@ -10,7 +10,9 @@
     "permissions": [
         "tabs",
         "contextMenus",
+        "bookmarks",
         "activeTab",
+        "notifications",
         "declarativeContent",
         "storage",
         "http://*/*",
