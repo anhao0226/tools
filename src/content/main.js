@@ -172,7 +172,7 @@ function initVue(name) {
                     params: { from: "en", to: this.currToLanguage, q: text }
                 }
                 chrome.runtime.sendMessage(sendData, (res) => {
-                    console.log(res);
+                    console.log()
                 });
                 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     const result = request.trans_result[0].dst;
